@@ -19,6 +19,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,6 +34,8 @@ public class LoginActivity extends AppCompatActivity {
 
     // firebase
     private FirebaseAuth firebaseAuth= FirebaseAuth.getInstance();
+    private FirebaseDatabase database= FirebaseDatabase.getInstance();
+    DatabaseReference mRef= database.getReference("User_Info");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +86,33 @@ public class LoginActivity extends AppCompatActivity {
                     try {
 
                         if(currentUser.isEmailVerified()){
-                            progressBar.setVisibility(View.GONE);
-                            Intent intent= new Intent(LoginActivity.this,MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_CLEAR_TASK); // clear the activity stack...
-                            startActivity(intent);
+                            mRef.child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                    if(snapshot.exists()){
+
+                                        progressBar.setVisibility(View.GONE);
+                                        Intent intent= new Intent(LoginActivity.this,MainActivity.class);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_CLEAR_TASK); // clear the activity stack...
+                                        startActivity(intent);
+                                    }
+                                    else {
+                                        progressBar.setVisibility(View.GONE);
+                                        Intent intent= new Intent(LoginActivity.this,SetNameActivity.class);
+                                        startActivity(intent);
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(LoginActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+
 
                         }
                         else {

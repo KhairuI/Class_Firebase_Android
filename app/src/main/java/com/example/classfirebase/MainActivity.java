@@ -1,18 +1,24 @@
 package com.example.classfirebase;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button button;
+    //Button button;
     // firebase
+    private BottomNavigationView bottomNavigationView;
+    private NavController navController;
     private FirebaseAuth firebaseAuth= FirebaseAuth.getInstance();
 
     @Override
@@ -20,7 +26,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        button= findViewById(R.id.signout);
+        bottomNavigationView= findViewById(R.id.bottomNavigationId);
+        navController= Navigation.findNavController(this,R.id.nav_host_fragment);
+        NavigationUI.setupWithNavController(bottomNavigationView,navController);
+
+
+
+       /* button= findViewById(R.id.signout);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -31,6 +43,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
 
             }
-        });
+        });*/
     }
 }
