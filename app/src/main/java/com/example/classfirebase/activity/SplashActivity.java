@@ -1,4 +1,4 @@
-package com.example.classfirebase;
+package com.example.classfirebase.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,13 +55,13 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void gotToMainActivity() {
-        Intent intent= new Intent(SplashActivity.this,MainActivity.class);
+        Intent intent= new Intent(SplashActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
     }
 
     private void gotToLoginActivity() {
-        Intent intent= new Intent(SplashActivity.this,LoginActivity.class);
+        Intent intent= new Intent(SplashActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }

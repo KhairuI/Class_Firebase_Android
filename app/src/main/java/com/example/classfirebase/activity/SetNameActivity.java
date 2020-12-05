@@ -1,4 +1,4 @@
-package com.example.classfirebase;
+package com.example.classfirebase.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.classfirebase.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -135,13 +136,13 @@ public class SetNameActivity extends AppCompatActivity {
     }
 
     private void goToLoginActivity() {
-        Intent intent= new Intent(SetNameActivity.this,LoginActivity.class);
+        Intent intent= new Intent(SetNameActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_CLEAR_TASK); // clear the activity stack...
         startActivity(intent);
     }
 
     private void goToMainActivity() {
-        Intent intent= new Intent(SetNameActivity.this,MainActivity.class);
+        Intent intent= new Intent(SetNameActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_CLEAR_TASK); // clear the activity stack...
         startActivity(intent);
     }
