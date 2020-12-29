@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.example.classfirebase.R;
 import com.example.classfirebase.adapter.ImageAdapter;
 import com.example.classfirebase.model.Image;
+import com.example.classfirebase.model.UriImage;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -48,7 +49,7 @@ public class InsertFragment extends Fragment {
     private ImageView blankImage;
     private RecyclerView recyclerView;
     private List<Image> imageNameList;
-    private List<String> savedImagesUri;
+    private List<UriImage> savedImagesUri;
     private Button saveButton, uploadButton;
     public static final int IMAGE_CODE =1;
     private int counter=0;
@@ -175,7 +176,11 @@ public class InsertFragment extends Fragment {
                                                     progressDialog.setMessage("Uploaded "+counter+"/"+imageNameList.size());
 
                                                     if(task.isSuccessful()){
-                                                        savedImagesUri.add(task.getResult().toString());
+
+                                                        String url= task.getResult().toString();
+                                                        String name= imageNameList.get(finalI).getImageName();
+                                                        UriImage uriImage= new UriImage(name,url);
+                                                        savedImagesUri.add(uriImage);
                                                     }
                                                     else {
                                                         Toast.makeText(getActivity(), ""+task.getException(), Toast.LENGTH_SHORT).show();
@@ -216,7 +221,8 @@ public class InsertFragment extends Fragment {
 
         for(int i=0;i<savedImagesUri.size();i++){
             Map<String,String> uriMap= new HashMap<>();
-            uriMap.put("link",savedImagesUri.get(i));
+            uriMap.put("link",savedImagesUri.get(i).getUrl());
+            uriMap.put("name",savedImagesUri.get(i).getImageName());
             uriPath.push().setValue(uriMap);
 
             if(i== savedImagesUri.size()-1){

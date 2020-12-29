@@ -2,65 +2,117 @@ package com.example.classfirebase.fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.classfirebase.R;
+import com.example.classfirebase.adapter.UserAdapter;
+import com.example.classfirebase.model.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ListFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.List;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class ListFragment extends Fragment implements UserAdapter.ClickInterface{
+
+    private RecyclerView recyclerView;
+    private SearchView searchView;
+    private ProgressBar progressBar;
+    private UserAdapter adapter;
+
+    private List<User> userList;
+    private List<User> searchList;
+
+    // firebase
+    //firebase
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef = database.getReference("User_Note");
+    private StorageReference storageReference= FirebaseStorage.getInstance().getReference();
 
     public ListFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ListFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ListFragment newInstance(String param1, String param2) {
-        ListFragment fragment = new ListFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_list, container, false);
+        View view=  inflater.inflate(R.layout.fragment_list, container, false);
+        recyclerView= view.findViewById(R.id.listRecycleId);
+        searchView= view.findViewById(R.id.searchViewId);
+        progressBar= view.findViewById(R.id.listProgressId);
+        adapter= new UserAdapter(this);
+
+        userList= new ArrayList<>();
+        searchList= new ArrayList<>();
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        setRecycle();
+
+        return view;
+    }
+
+    private void setRecycle() {
+        String currentUser= firebaseAuth.getCurrentUser().getUid();
+        myRef.child(currentUser).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot ds:snapshot.getChildren()){
+
+                    String total= String.valueOf(ds.child("images").getChildrenCount());
+                    String noteId= ds.getKey().toString();
+                    String name= ds.child("name").getValue().toString();
+                    String description = ds.child("description").getValue().toString();
+                    User user= new User(noteId,name,description,total);
+                    userList.add(user);
+                }
+                progressBar.setVisibility(View.GONE);
+                adapter.getUserList(userList);
+                recyclerView.setAdapter(adapter);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+                Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onItemClick(int position) {
+       ListFragmentDirections.ActionListFragmentToDetailsFragment action=
+               ListFragmentDirections.actionListFragmentToDetailsFragment();
+       action.setNoteId(userList.get(position).getNoteId());
+        NavController controller= Navigation.findNavController(getView());
+        controller.navigate(action);
+    }
+
+    @Override
+    public void onLongItemClick(int position) {
+
     }
 }
