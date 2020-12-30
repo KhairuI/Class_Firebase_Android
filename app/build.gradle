@@ -63,4 +63,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
 
+    // image loader
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+
 }

@@ -69,6 +69,46 @@ public class ListFragment extends Fragment implements UserAdapter.ClickInterface
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         setRecycle();
 
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                progressBar.setVisibility(View.VISIBLE);
+                myRef.child(firebaseAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for(DataSnapshot ds: snapshot.getChildren()){
+                            String value= ds.child("search").getValue().toString();
+                            if(value.equals(s)){
+                                String total= String.valueOf(ds.child("images").getChildrenCount());
+                                String noteId= ds.getKey().toString();
+                                String name= ds.child("name").getValue().toString();
+                                String description = ds.child("description").getValue().toString();
+                                User user= new User(noteId,name,description,total);
+                                searchList.add(user);
+                            }
+                        }
+                        progressBar.setVisibility(View.GONE);
+                        adapter.getUserList(searchList);
+                        recyclerView.setAdapter(adapter);
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                        Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         return view;
     }
 
